@@ -87,7 +87,7 @@ private
 
   def generate_sentence
     chains = make_chains
-    text = ([chains.first.neck] + chains.map(&:word)).join
+    text = ([chains.first.neck] + chains.map(&:word).compact).join
 
     if text.length <= 140
       sentence = Sentence.where(body: text).first_or_initialize
@@ -105,9 +105,9 @@ private
     chain = Chain.where(head: nil).random_weighted(:weight)
     chains << chain
     while chain = Chain.where(head: chain.neck, neck: chain.word).random_weighted(:weight)
-      break if chain.word.nil?
       break if chains.length > 100
       chains << chain
+      break if chain.word.nil?
     end
     chains
   end
