@@ -25,24 +25,28 @@ class Kani
     end
   end
 
-  def lean_words
+  def lean_text(text)
+    text = text
+      .gsub(/@[a-zA-Z0-9_]+/, '')
+      .gsub(/[a-zA-Z0-9_]+:/, '')
+      .gsub(%r!https?://\S*!, '')
+      .gsub('RT', '')
+      .gsub('QT', '')
+      .strip
+    words = TAGGER.wakati(text)
+    words.map! { |word| word == "BOS/EOS" ? nil : word }
+
+    words.each_cons(3) do |head, neck, word|
+      Chain.where(head: head, neck: neck, word: word).first_or_create
+    end
+  end
+
+  def lean_from_search
     search_result = @twitter.search('ほっこり', result_type: "recent", count: 100, since_id: Configs.search_since_id)
-    Configs.search_since_id = search_result.first.attrs[:id_str]
+    return unless first = search_result.first
+    Configs.search_since_id = first.attrs[:id_str]
     search_result.each do |tweet|
-      text = tweet.text
-        .gsub(/@[a-zA-Z0-9_]+/, '')
-        .gsub(/[a-zA-Z0-9_]+:/, '')
-        .gsub(%r!https?://\S*!, '')
-        .gsub('RT', '')
-        .gsub('QT', '')
-        .strip
-
-      words = TAGGER.wakati(text)
-      words.map! { |word| word == "BOS/EOS" ? nil : word }
-
-      words.each_cons(3) do |head, neck, word|
-        Chain.where(head: head, neck: neck, word: word).first_or_create
-      end
+      lean_text(tweet.text)
     end
   end
 

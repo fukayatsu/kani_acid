@@ -16,7 +16,7 @@ end
   when Twitter::Tweet
     tweet = object
     unless tweet.user.attrs[:id_str] == ENV["TWITTER_ID"]
-      # TODO do something
+      @kani.lean_text(tweet.text)
     end
   when Twitter::Streaming::Event
     event = object

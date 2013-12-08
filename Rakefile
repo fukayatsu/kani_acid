@@ -6,7 +6,7 @@ require './kani'
 namespace :kani do
   desc 'lean words from search'
   task :lean do
-    Kani.new.lean_words
+    Kani.new.lean_from_search
   end
 
   desc 'tweet something'
