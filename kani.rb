@@ -1,8 +1,10 @@
+require 'dotenv'
+Dotenv.load
+
 KANI_ENV = ENV['KANI_ENV'] || 'development'
 
 require 'bundler'
 Bundler.require(:default, KANI_ENV)
-Dotenv.load
 
 require 'okura/serializer'
 dict_dir = 'lib/okura-dic'
