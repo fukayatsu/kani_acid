@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131208111759) do
+ActiveRecord::Schema.define(:version => 20131208134015) do
 
   create_table "chains", :force => true do |t|
     t.string   "head"
@@ -53,11 +53,13 @@ ActiveRecord::Schema.define(:version => 20131208111759) do
     t.datetime "tweeted_at"
     t.datetime "created_at",                :null => false
     t.datetime "updated_at",                :null => false
+    t.string   "status_id"
   end
 
   add_index "sentences", ["body"], :name => "index_sentences_on_body"
   add_index "sentences", ["fav_count"], :name => "index_sentences_on_fav_count"
   add_index "sentences", ["rt_count"], :name => "index_sentences_on_rt_count"
+  add_index "sentences", ["status_id"], :name => "index_sentences_on_status_id"
   add_index "sentences", ["tweeted_at"], :name => "index_sentences_on_tweeted_at"
 
 end

@@ -14,9 +14,6 @@ ActiveRecord::Base.establish_connection(YAML.load_file('db/config.yml')[KANI_ENV
 require_relative 'models/chain'
 require_relative 'models/sentence'
 require_relative 'models/configs'
-# require_relative 'kani/brain'
-# require_relative 'kani/eye'
-# require_relative 'kani/mouth'
 
 class Kani
   def initialize
@@ -54,7 +51,36 @@ class Kani
 
     sentence.tweeted_at = Time.now
     sentence.save!
-    @twitter.update(sentence.body)
+    status = @twitter.update(sentence.body)
+    sentence.status_id = status.attrs[:id_str]
+    sentence.save!
+  end
+
+  def on_event(event)
+    case event.name
+    when :favorite
+      status_id = event.target_object.attrs[:id_str]
+      sentence = Sentence.where(status_id: status_id).first
+      return if sentence.blank?
+      sentence.fav_count += 1
+      sentence.save
+      sentence.chains.each do |chain|
+        chain.weight += 20
+        chain.save
+      end
+    when :unfavorite
+      status_id = event.target_object.attrs[:id_str]
+      sentence = Sentence.where(status_id: status_id).first
+      return if sentence.blank?
+      sentence.fav_count -= 1
+      sentence.save
+      sentence.chains.each do |chain|
+        chain.weight -= 20
+        chain.save
+      end
+    when :follow
+      @twitter.follow(event.source)
+    end
   end
 
 private
