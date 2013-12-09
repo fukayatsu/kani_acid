@@ -42,12 +42,17 @@ class Kani
   end
 
   def lean_from_search
-    search_result = @twitter.search('ほっこり', result_type: "recent", count: 100, since_id: Configs.search_since_id)
+    search_result = @twitter.search('ほっこり', result_type: "recent", count: 100, since_id: Configs.search_since_id || 1)
     return unless first = search_result.first
     Configs.search_since_id = first.attrs[:id_str]
-    search_result.each do |tweet|
-      lean_text(tweet.text)
-    end
+    search_result.each { |tweet| lean_text(tweet.text) }
+  end
+
+  def lean_from_timeline
+    tweets = @twitter.home_timeline(count: 200, since_id: Configs.home_since_id || 1)
+    return unless first = tweets.first
+    Configs.home_since_id = first.attrs[:id_str]
+    tweets.each { |tweet| lean_text(tweet.text) }
   end
 
   def tweet_something

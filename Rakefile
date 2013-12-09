@@ -7,6 +7,7 @@ namespace :kani do
   desc 'lean words from search'
   task :lean do
     Kani.new.lean_from_search
+    Kani.new.lean_from_timeline
   end
 
   desc 'tweet something'

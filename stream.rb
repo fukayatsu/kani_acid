@@ -12,17 +12,21 @@ end
 @kani = Kani.new
 
 @streaming.user do |object|
-  case object
-  when Twitter::Tweet
-    tweet = object
-    unless tweet.user.attrs[:id_str] == ENV["TWITTER_ID"]
-      @kani.lean_text(tweet.text)
+  begin
+    case object
+    when Twitter::Tweet
+      tweet = object
+      unless tweet.user.attrs[:id_str] == ENV["TWITTER_ID"]
+        @kani.lean_text(tweet.text)
+      end
+    when Twitter::Streaming::Event
+      event = object
+      unless event.source.attrs[:id_str] == ENV["TWITTER_ID"]
+        @kani.on_event(event)
+      end
     end
-  when Twitter::Streaming::Event
-    event = object
-    unless event.source.attrs[:id_str] == ENV["TWITTER_ID"]
-      @kani.on_event(event)
-    end
+  rescue => e
+    puts e.backtrace
   end
 end
 
